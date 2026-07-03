@@ -1,15 +1,42 @@
 const express = require("express");
+const connectDB = require("./db");
 
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
 
+let db;
+connectDB().then((database) => {
+    db = database;
+    console.log("MongoDB Connected!");
+});
+
 let user = {
     id: 1,
     name: "xyz",
     age: 20
 };
+
+
+app.get("/products", async (req, res) => {
+    const products = await db.collection("products").find().toArray();
+
+    res.status(200).json({
+        message: "Products fetched successfully",
+        data: products
+    });
+});
+
+
+app.post("/products", async (req, res) => {
+    const result = await db.collection("products").insertOne(req.body);
+
+    res.status(201).json({
+        message: "Product added successfully",
+        data: result
+    });
+});
 
 
 app.get("/user", (req, res) => {
